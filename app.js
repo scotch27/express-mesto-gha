@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const users = require('./routes/users');
-// const cards = require('./routes/cards');
+const cards = require('./routes/cards');
 
 const app = express();
 
@@ -16,9 +16,17 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 //   useFindAndModify: false,
 // });
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '64b3f773770d7544771fd85f', // вставьте сюда _id созданного в предыдущем пункте пользователя
+  };
+
+  next();
+});
+
 // подключаем мидлвары, роуты и всё остальное...
 app.use('/', users);
-// app.use('/', cards);
+app.use('/', cards);
 app.use('/', (req, res) => {
   res.status(404).send({
     message: 'Запрашиваемый ресурс не найден',
