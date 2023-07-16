@@ -1,14 +1,15 @@
-const http = require('http');
+const express = require('express');
+const mongoose = require('mongoose');
 
-// создаём сервер
-// передадим обработчик
-const server = http.createServer((req, res) => {
-    res.writeHead(200, {
-        'Content-Type': 'text/html; charset=utf8'
-    });
-    // в методе end тоже можно передать данные
-    res.end('<h1>Привет, мир!</h1>', 'utf8');
+const app = express();
+
+// подключаемся к серверу mongo
+mongoose.connect('mongodb://localhost:27017/mydb', {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
 });
 
-server.listen(3000); // будем принимать сообщения с 3000 порта
-console.log('In Node We Trust'); 
+// подключаем мидлвары, роуты и всё остальное...
+
+app.listen(3000);
