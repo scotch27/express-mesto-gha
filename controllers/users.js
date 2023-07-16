@@ -40,4 +40,48 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { getUser, getUsers, createUser };
+const updateProfile = async (req, res) => {
+  try {
+    const { name, about } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+    console.log({ name, about });
+    console.log(updatedUser);
+    res.send(updatedUser);
+  } catch (error) {
+    const ERROR_CODE = 400;
+    if (error.name === 'ValidationError') {
+      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
+    }
+    return res.status(500).send({ message: 'Ошибка сервера' });
+  }
+};
+
+const updateAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+    res.send(updatedUser);
+  } catch (error) {
+    const ERROR_CODE = 400;
+    if (error.name === 'ValidationError') {
+      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
+    }
+    return res.status(500).send({ message: 'Ошибка сервера' });
+  }
+};
+
+module.exports = { getUser, getUsers, createUser, updateProfile, updateAvatar };
