@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
+    required: true,
     validate: {
       validator(v) {
         const regex = URL_REGEXP;
