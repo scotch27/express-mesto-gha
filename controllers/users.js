@@ -1,49 +1,49 @@
 const User = require('../models/user');
+const BadRequestError = require('../utils/errors/badRequestError');
+const NotFoundError = require('../utils/errors/notFoundError');
 
-const getUsers = async (req, res) => {
+module.exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
-    res.status(200).send(users);
+    res.send(users);
   } catch (error) {
-    res.status(500).send({ message: 'На сервере произошла ошибка запроса' });
+    next(error);
   }
 };
 
-const getUser = async (req, res) => {
+module.exports.getUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const user = await User.findOne({ _id: id });
+    const { userId } = req.params;
+    const user = await User.findOne({ _id: userId });
     if (user) {
-      return res.status(200).send(user);
+      return res.send(user);
     }
-    return res.status(404).send({ message: `Пользователь c id ${id} не найден` });
+    throw new NotFoundError('Пользователь по указанному _id не найден');
   } catch (error) {
-    const ERROR_CODE = 400;
     if (error.name === 'CastError') {
-      return res.status(ERROR_CODE).send({ message: 'Id введен некорректно' });
+      next(new BadRequestError('Переданы некорректные данные'));
     }
-    return res.status(500).send({ message: 'Ошибка сервера' });
+    next(error);
   }
 };
 
-const createUser = async (req, res) => {
+module.exports.createUser = async (req, res, next) => {
   try {
     const { name, about, avatar } = req.body;
     const newUser = await User.create({ name, about, avatar });
-    return res.status(200).send(newUser);
+    return res.send(newUser);
   } catch (error) {
-    const ERROR_CODE = 400;
     if (error.name === 'ValidationError') {
-      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
+      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }
-    return res.status(500).send({ message: 'Ошибка сервера' });
+    next(error);
   }
 };
 
-const updateProfile = async (req, res) => {
+module.exports.updateProfile = async (req, res, next) => {
   try {
     const { name, about } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
       req.user._id,
       { name, about },
       {
@@ -51,22 +51,22 @@ const updateProfile = async (req, res) => {
         runValidators: true,
       },
     );
-    console.log({ name, about });
-    console.log(updatedUser);
-    res.send(updatedUser);
-  } catch (error) {
-    const ERROR_CODE = 400;
-    if (error.name === 'ValidationError') {
-      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
+    if (!user) {
+      throw new NotFoundError('Пользователь по указанному _id не найден');
     }
-    return res.status(500).send({ message: 'Ошибка сервера' });
+    return res.send(user);
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+    }
+    next(error);
   }
 };
 
-const updateAvatar = async (req, res) => {
+module.exports.updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
       {
@@ -74,14 +74,14 @@ const updateAvatar = async (req, res) => {
         runValidators: true,
       },
     );
-    res.send(updatedUser);
-  } catch (error) {
-    const ERROR_CODE = 400;
-    if (error.name === 'ValidationError') {
-      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
+    if (!user) {
+      throw new NotFoundError('Пользователь по указанному _id не найден');
     }
-    return res.status(500).send({ message: 'Ошибка сервера' });
+    res.send(user);
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+    }
+    next(error);
   }
 };
-
-module.exports = { getUser, getUsers, createUser, updateProfile, updateAvatar };
