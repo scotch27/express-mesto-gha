@@ -1,82 +1,73 @@
 const Card = require('../models/card');
+const BadRequestError = require('../utils/errors/badRequestError');
+const NotFoundError = require('../utils/errors/notFoundError');
 
 const USER_REF = ['owner', 'likes'];
 
-module.exports.getCards = async (req, res) => {
+module.exports.getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({})
       .populate(USER_REF);
-    res.status(200).send(cards);
+    res.send(cards);
   } catch (error) {
-    res.status(500).send({ message: 'На сервере произошла ошибка запроса' });
+    next(error);
   }
 };
 
-module.exports.deleteCard = async (req, res) => {
+module.exports.deleteCard = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const card = await Card.findOne({ _id: id });
-    if (card) {
-      await Card.deleteOne(card);
-      return res.status(200).send({ message: 'Карточка удалена' });
+    const card = await Card.findById(req.params.cardId);
+    if (!card) {
+      throw new NotFoundError('Карточка с указанным _id не найдена.');
     }
-    return res.status(404).send({ message: `Карточка c id ${id} не найдена` });
+    await Card.deleteOne(card);
+    return res.send({ message: 'Карточка успешно удалена' });
   } catch (error) {
-    const ERROR_CODE = 400;
     if (error.name === 'CastError') {
-      return res.status(ERROR_CODE).send({ message: 'Id введен некорректно' });
+      next(new BadRequestError('Переданы некорректные данные для удаления карточки'));
     }
-    return res.status(500).send({ message: 'Ошибка сервера' });
+    next(error);
   }
 };
 
-module.exports.createCard = async (req, res) => {
+module.exports.createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
     const ownerId = req.user._id;
     const card = await Card.create({ name, link, owner: ownerId });
-    return res.status(200).send(card);
+    return res.send(card);
   } catch (error) {
-    const ERROR_CODE = 400;
     if (error.name === 'ValidationError') {
-      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
+      next(new BadRequestError('Переданы некорректные данные при создании карточки'));
     }
-    return res.status(500).send({ message: 'Ошибка сервера' });
+    next(error);
   }
 };
 
-module.exports.likeCard = async (req, res) => {
+const handleCardLike = async (req, res, next, addLike) => {
   try {
-    console.log('likeCard');
+    const action = addLike ? '$addToSet' : '$pull';
     const card = await Card.findByIdAndUpdate(
-      req.params.id,
-      { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+      req.params.cardId,
+      { [action]: { likes: req.user._id } },
       { new: true },
     ).populate(USER_REF);
-    return res.status(200).send(card);
-  } catch (error) {
-    const ERROR_CODE = 400;
-    if (error.name === 'ValidationError') {
-      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
+    if (!card) {
+      throw new NotFoundError('Передан несуществующий _id карточки');
     }
-    return res.status(500).send({ message: 'Ошибка сервера' });
+    return res.send(card);
+  } catch (error) {
+    if (error.name === 'CastError') {
+      next(new BadRequestError('Переданы некорректные данные для постановки/снятия лайка'));
+    }
+    next(error);
   }
 };
 
-module.exports.dislikeCard = async (req, res) => {
-  try {
-    console.log('dislikeCard');
-    const card = await Card.findByIdAndUpdate(
-      req.params.id,
-      { $pull: { likes: req.user._id } }, // убрать _id из массива
-      { new: true },
-    ).populate(USER_REF);
-    return res.status(200).send(card);
-  } catch (error) {
-    const ERROR_CODE = 400;
-    if (error.name === 'ValidationError') {
-      return res.status(ERROR_CODE).send({ message: 'Ошибка валидации данных' });
-    }
-    return res.status(500).send({ message: 'Ошибка сервера' });
-  }
+module.exports.likeCard = (req, res, next) => {
+  handleCardLike(req, res, next, true);
+};
+
+module.exports.dislikeCard = (req, res, next) => {
+  handleCardLike(req, res, next, false);
 };

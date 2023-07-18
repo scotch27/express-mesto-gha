@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const NotFoundError = require('./utils/errors/notFoundError');
+const errorsHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
@@ -27,10 +29,9 @@ app.use((req, res, next) => {
 // подключаем мидлвары, роуты и всё остальное...
 app.use('/', users);
 app.use('/', cards);
-app.use('/', (req, res) => {
-  res.status(404).send({
-    message: 'Запрашиваемый ресурс не найден',
-  });
-});
+app.use('*', () => {
+  console.log('any adsress');
+  throw new NotFoundError('Запрашиваемый ресурс не найден'); });
+app.use(errorsHandler);
 
 app.listen(3000);

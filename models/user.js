@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { URL_REGEXP } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return /^https?:\/\/(www\.)?(([\w#!:.?+=&%@!\-/])*)?\.(([\w#!:.?+=&%@!\-/])*)?#?/gi.test(v);
+        return URL_REGEXP;
       },
       message: (value) => `${value} Укажите коректный адрес URL.`,
     },
