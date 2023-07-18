@@ -31,7 +31,8 @@ app.use('/', users);
 app.use('/', cards);
 app.use('*', () => {
   console.log('any adsress');
-  throw new NotFoundError('Запрашиваемый ресурс не найден'); });
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
+});
 app.use(errorsHandler);
 
 app.listen(3000);
