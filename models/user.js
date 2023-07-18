@@ -19,9 +19,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return URL_REGEXP;
+        const regex = URL_REGEXP;
+        const str = v;
+        return regex.test(str);
       },
-      message: (value) => `${value} Укажите коректный адрес URL.`,
+      message: 'Укажите ссылку на изображенин',
     },
   },
 });

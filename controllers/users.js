@@ -79,6 +79,7 @@ module.exports.updateAvatar = async (req, res, next) => {
     }
     res.send(user);
   } catch (error) {
+    console.log(error.name);
     if (error.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }
