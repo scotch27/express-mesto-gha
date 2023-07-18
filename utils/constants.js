@@ -1,1 +1,1 @@
-module.exports.URL_REGEXP = /^https?:\/\/(www\.)?(([\w#!:.?+=&%@!\-/])*)?\.(([\w#!:.?+=&%@!\-/])*)?#?/gi;
+module.exports.URL_REGEXP = /^(ftp|http|https):\/\/[^ "]+$/;

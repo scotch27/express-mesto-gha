@@ -77,9 +77,8 @@ module.exports.updateAvatar = async (req, res, next) => {
     if (!user) {
       throw new NotFoundError('Пользователь по указанному _id не найден');
     }
-    res.send(user);
+    return res.send(user);
   } catch (error) {
-    console.log(error.name);
     if (error.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }

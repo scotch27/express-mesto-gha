@@ -16,11 +16,12 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    required: true,
     validate: {
       validator(v) {
         const regex = URL_REGEXP;
         const str = v;
+        console.log(regex);
+        console.log(str);
         return regex.test(str);
       },
       message: 'Укажите ссылку на изображенин',
