@@ -7,7 +7,7 @@ module.exports.getUsers = async (req, res, next) => {
     const users = await User.find({});
     res.send(users);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -21,9 +21,9 @@ module.exports.getUser = async (req, res, next) => {
     throw new NotFoundError('Пользователь по указанному _id не найден');
   } catch (error) {
     if (error.name === 'CastError') {
-      next(new BadRequestError('Переданы некорректные данные'));
+      return next(new BadRequestError('Переданы некорректные данные'));
     }
-    next(error);
+    return next(error);
   }
 };
 
@@ -34,9 +34,9 @@ module.exports.createUser = async (req, res, next) => {
     return res.status(201).send(newUser);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }
-    next(error);
+    return next(error);
   }
 };
 
@@ -57,9 +57,9 @@ module.exports.updateProfile = async (req, res, next) => {
     return res.send(user);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }
-    next(error);
+    return next(error);
   }
 };
 
@@ -80,8 +80,8 @@ module.exports.updateAvatar = async (req, res, next) => {
     return res.send(user);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }
-    next(error);
+    return next(error);
   }
 };

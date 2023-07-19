@@ -10,7 +10,7 @@ module.exports.getCards = async (req, res, next) => {
       .populate(USER_REF);
     res.send(cards);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -24,9 +24,9 @@ module.exports.deleteCard = async (req, res, next) => {
     return res.send({ message: 'Карточка успешно удалена' });
   } catch (error) {
     if (error.name === 'CastError') {
-      next(new BadRequestError('Переданы некорректные данные для удаления карточки'));
+      return next(new BadRequestError('Переданы некорректные данные для удаления карточки'));
     }
-    next(error);
+    return next(error);
   }
 };
 
@@ -38,9 +38,9 @@ module.exports.createCard = async (req, res, next) => {
     return res.status(201).send(card);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+      return next(new BadRequestError('Переданы некорректные данные при создании карточки'));
     }
-    next(error);
+    return next(error);
   }
 };
 
@@ -58,9 +58,9 @@ const handleCardLike = async (req, res, next, addLike) => {
     return res.send(card);
   } catch (error) {
     if (error.name === 'CastError') {
-      next(new BadRequestError('Переданы некорректные данные для постановки/снятия лайка'));
+      return next(new BadRequestError('Переданы некорректные данные для постановки/снятия лайка'));
     }
-    next(error);
+    return next(error);
   }
 };
 
