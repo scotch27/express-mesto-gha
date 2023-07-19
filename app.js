@@ -1,17 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const NotFoundError = require('./utils/errors/notFoundError');
 const errorsHandler = require('./middlewares/errorHandler');
 
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+
 const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(helmet());
 
 // подключаемся к серверу mongo
-mongoose.connect('mongodb://localhost:27017/mestodb');
+mongoose.connect(DB_URL);
 // mongoose.connect('mongodb://localhost:27017/mestodb', {
 //   useNewUrlParser: true,
 //   useCreateIndex: true,
@@ -35,4 +39,4 @@ app.use('*', () => {
 });
 app.use(errorsHandler);
 
-app.listen(3000);
+app.listen(PORT);
