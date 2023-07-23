@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { URL_REGEXP } = require('../utils/constants');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -27,6 +28,19 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Укажите ссылку на изображенин',
     },
+  },
+  email: {
+    type: String,
+    unique: true,
+    required: true,
+    validate: {
+      validator: (v) => validator.isEmail(v),
+      message: 'Неправильный формат почты',
+    },
+  },
+  password: {
+    type: String,
+    required: true,
   },
 });
 
