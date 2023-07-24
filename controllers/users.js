@@ -69,6 +69,9 @@ module.exports.createUser = async (req, res, next) => {
     if (error.name === 'ValidationError') {
       return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }
+    if (error.name === 'MongoServerError' && error.code === 11000) {
+      return next(new BadRequestError('Пользователь с таким email уже зарегистрирован'));
+    }
     return next(error);
   }
 };

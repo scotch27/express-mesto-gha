@@ -24,20 +24,14 @@ mongoose.connect(DB_URL);
 //   useFindAndModify: false,
 // });
 
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '64b4023da9912b2f678102df', // вставьте сюда _id созданного в предыдущем пункте пользователя
-//   };
-
-//   next();
-// });
-
 // подключаем мидлвары, роуты и всё остальное...
+
+app.post('/signin', login);
+app.post('/signup', createUser);
+
 app.use(auth);
 app.use('/', users);
 app.use('/', cards);
-app.post('/signin', login);
-app.post('/signup', createUser);
 app.use('*', () => {
   console.log('any adsress');
   throw new NotFoundError('Запрашиваемый ресурс не найден');
