@@ -24,6 +24,13 @@ mongoose.connect(DB_URL);
 //   useFindAndModify: false,
 // });
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '64b4023da9912b2f678102df', // вставьте сюда _id созданного в предыдущем пункте пользователя
+  };
+
+  next();
+});
 // подключаем мидлвары, роуты и всё остальное...
 
 app.post('/signin', login);
