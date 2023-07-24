@@ -56,17 +56,23 @@ module.exports.createUser = async (req, res, next) => {
       password,
     });
     const hash = await bcrypt.hash(password, 10);
-    await User.create({
+    const user = await User.create({
       name,
       about,
       avatar,
       email,
       password: hash,
     });
-    return res.status(201).send({ message: 'Пользователь успешно создан' });
+    return res.status(201).send({
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+    });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }
     if (error.name === 'MongoServerError' && error.code === 11000) {
       return next(new BadRequestError('Пользователь с таким email уже зарегистрирован'));
