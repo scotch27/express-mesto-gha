@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./utils/errors/notFoundError');
 const errorsHandler = require('./middlewares/errorHandler');
 
@@ -33,6 +34,8 @@ app.use((req, res, next) => {
 // подключаем мидлвары, роуты и всё остальное...
 app.use('/', users);
 app.use('/', cards);
+app.post('/signin', login);
+app.post('/signup', createUser);
 app.use('*', () => {
   console.log('any adsress');
   throw new NotFoundError('Запрашиваемый ресурс не найден');
