@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
 const BadRequestError = require('../utils/errors/badRequestError');
 const NotFoundError = require('../utils/errors/notFoundError');
 
@@ -29,10 +30,31 @@ module.exports.getUser = async (req, res, next) => {
 
 module.exports.createUser = async (req, res, next) => {
   try {
-    const { name, about, avatar } = req.body;
-    const newUser = await User.create({ name, about, avatar });
+    const {
+      name,
+      about,
+      avatar,
+      email,
+      password,
+    } = req.body;
+    console.log({
+      name,
+      about,
+      avatar,
+      email,
+      password,
+    });
+    const hash = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    });
     return res.status(201).send(newUser);
   } catch (error) {
+    console.log(error.name);
     if (error.name === 'ValidationError') {
       return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     }
