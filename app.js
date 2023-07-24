@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const { errors } = require('celebrate');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -43,6 +44,7 @@ app.use('*', () => {
   console.log('any adsress');
   throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
+app.use(errors());
 app.use(errorsHandler);
 
 app.listen(PORT);
