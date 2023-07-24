@@ -1,13 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const { errors } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./utils/errors/notFoundError');
 const errorsHandler = require('./middlewares/errorHandler');
 const auth = require('./middlewares/auth');
+const { URL_REGEXP } = require('./utils/constants');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -34,8 +35,22 @@ app.use((req, res, next) => {
 });
 // подключаем мидлвары, роуты и всё остальное...
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+    avatar: Joi.string().regex(URL_REGEXP),
+  }),
+}), createUser);
 
 app.use(auth);
 app.use('/', users);
