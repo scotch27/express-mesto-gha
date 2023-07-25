@@ -20,11 +20,6 @@ app.use(helmet());
 
 // подключаемся к серверу mongo
 mongoose.connect(DB_URL);
-// mongoose.connect('mongodb://localhost:27017/mestodb', {
-//   useNewUrlParser: true,
-//   useCreateIndex: true,
-//   useFindAndModify: false,
-// });
 
 // подключаем мидлвары, роуты и всё остальное...
 app.post('/signin', celebrate({
