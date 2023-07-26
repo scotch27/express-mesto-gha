@@ -25,8 +25,6 @@ const userSchema = new mongoose.Schema(
         validator(v) {
           const regex = URL_REGEXP;
           const str = v;
-          console.log(regex);
-          console.log(str);
           return regex.test(str);
         },
         message: 'Укажите ссылку на изображенин',
