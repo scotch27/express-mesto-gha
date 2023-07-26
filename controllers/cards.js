@@ -21,9 +21,9 @@ module.exports.deleteCard = (req, res, next) => {
       if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Нельзя удалять чужие карточки');
       }
-      Card.deleteOne(card);
+      Card.deleteOne(card)
+        .then(() => res.send({ message: 'Карточка успешно удалена' }));
     })
-    .then(() => res.send({ message: 'Карточка успешно удалена' }))
     .catch((error) => {
       if (error.name === 'CastError') {
         return next(new BadRequestError('Переданы некорректные данные для удаления карточки'));
@@ -56,7 +56,7 @@ const handleCardLike = (req, res, next, addLike) => {
     .orFail(() => {
       throw new NotFoundError('Передан несуществующий _id карточки');
     })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(addLike ? 201 : 200).send(card))
     .catch((error) => {
       if (error.name === 'CastError') {
         return next(new BadRequestError('Переданы некорректные данные для постановки/снятия лайка'));
