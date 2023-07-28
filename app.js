@@ -9,6 +9,7 @@ const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./utils/errors/notFoundError');
 const errorsHandler = require('./middlewares/errorHandler');
 const auth = require('./middlewares/auth');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { validateLogin, validateRegister } = require('./utils/validators/userValidator');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
@@ -30,7 +31,8 @@ app.use(limiter);
 // подключаемся к серверу mongo
 mongoose.connect(DB_URL);
 
-// подключаем мидлвары, роуты и всё остальное...
+app.use(requestLogger); // подключаем логгер запросов
+
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateRegister, createUser);
 
@@ -41,7 +43,9 @@ app.use('*', () => {
   console.log('any adsress');
   throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
-app.use(errors());
-app.use(errorsHandler);
+
+app.use(errorLogger); // подключаем логгер ошибок
+app.use(errors()); // обработчик ошибок celebrate
+app.use(errorsHandler); // централизованный обработчик ошибок
 
 app.listen(PORT);
